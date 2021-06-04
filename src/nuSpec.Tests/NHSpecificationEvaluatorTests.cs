@@ -14,13 +14,13 @@ using Xunit;
 
 namespace nuSpec.Tests
 {
-    public class NHSpecificationEvalualorTests : InMemoryDatabaseTest
+    public class NHSpecificationEvaluatorTests : InMemoryDatabaseTest
     {
         private readonly IQueryable<Employee> sessionQuery;
 
-        private readonly NHSpecificationEvalualor evaluator;
+        private readonly NhSpecificationEvaluator evaluator;
 
-        public NHSpecificationEvalualorTests()
+        public NHSpecificationEvaluatorTests()
         {
             var d1 = new Department { Name = "D1" };
             var d2 = new Department { Name = "D2" };
@@ -48,7 +48,7 @@ namespace nuSpec.Tests
             this.Session.Evict(d2);
 
             this.sessionQuery = this.Session.Query<Employee>();
-            this.evaluator = new NHSpecificationEvalualor();
+            this.evaluator = new NhSpecificationEvaluator();
         }
 
         [Fact]

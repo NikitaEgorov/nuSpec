@@ -4,7 +4,7 @@ using nuSpec.Abstraction;
 
 namespace nuSpec.NHibernate
 {
-    public class NHSpecificationEvalualor : ISpecificationEvalualor
+    public class NhSpecificationEvaluator : ISpecificationEvaluator
     {
         public IQueryable<TProjection> GetQuery<TDomainObject, TProjection>(
             IQueryable<TDomainObject> query,

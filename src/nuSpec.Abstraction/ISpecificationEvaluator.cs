@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace nuSpec.Abstraction
 {
-    public interface ISpecificationEvalualor
+    public interface ISpecificationEvaluator
     {
         IQueryable<TProjection> GetQuery<TDomainObject, TProjection>(
             IQueryable<TDomainObject> query,
