@@ -17,9 +17,10 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
-    - name: Restore dependencies
-      run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
+      run: |
+        dotnet build src/nuSpec.Abstraction/nuSpec.Abstraction.csproj  --configuration Release
+        dotnet build src/nuSpec.NHibernate/nuSpec.NHibernate.csproj  --configuration Release
+        dotnet build src/nuSpec.Tests/nuSpec.Tests.csproj  --configuration Release
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test src/nuSpec.Tests/nuSpec.Tests.csproj --no-build --verbosity normal
