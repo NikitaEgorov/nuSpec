@@ -1,6 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 
-namespace nuSpec.Tests
+namespace nuSpec.Tests.Models
 {
     public class DepartmentMap : ClassMap<Department>
     {

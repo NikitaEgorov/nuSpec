@@ -13,12 +13,12 @@ namespace nuSpec.Abstraction
             IQueryable<TDomainObject> query,
             Specification<TDomainObject> specification);
 
-        IReadOnlyCollection<IQueryable<TProjection>> GetQuery<TDomainObject, TProjection>(
+        IFutureValue<TProjection> GetFutureValue<TDomainObject, TProjection>(
             IQueryable<TDomainObject> query,
-            FutureSpecification<TDomainObject, TProjection> specification);
+            Specification<TDomainObject, TProjection> specification);
 
-        IReadOnlyCollection<IQueryable<TDomainObject>> GetQuery<TDomainObject>(
+        IFutureEnumerable<TProjection> GetFuture<TDomainObject, TProjection>(
             IQueryable<TDomainObject> query,
-            FutureSpecification<TDomainObject> specification);
+            Specification<TDomainObject, TProjection> specification);
     }
 }

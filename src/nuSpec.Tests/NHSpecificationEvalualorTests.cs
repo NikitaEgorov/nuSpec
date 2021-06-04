@@ -6,20 +6,21 @@ using FluentAssertions;
 using NHibernate;
 using NHibernate.Linq;
 
-using nuSpec.Abstraction;
 using nuSpec.NHibernate;
+using nuSpec.Tests.Models;
+using nuSpec.Tests.Specs;
 
 using Xunit;
 
 namespace nuSpec.Tests
 {
-    public class SpecificationTests : InMemoryDatabaseTest
+    public class NHSpecificationEvalualorTests : InMemoryDatabaseTest
     {
         private readonly IQueryable<Employee> sessionQuery;
 
         private readonly NHSpecificationEvalualor evaluator;
 
-        public SpecificationTests()
+        public NHSpecificationEvalualorTests()
         {
             var d1 = new Department { Name = "D1" };
             var d2 = new Department { Name = "D2" };
@@ -51,7 +52,7 @@ namespace nuSpec.Tests
         }
 
         [Fact]
-        public async Task QueryWithoutFetch()
+        public async Task GetQueryWithoutFetch()
         {
             // Arrange
             var spec = new QuerySpec();
@@ -65,7 +66,7 @@ namespace nuSpec.Tests
         }
 
         [Fact]
-        public async Task QueryWithFetch()
+        public async Task GetQueryWithFetch()
         {
             // Arrange
             var spec = new QueryWithFetchSpec();
@@ -79,7 +80,7 @@ namespace nuSpec.Tests
         }
 
         [Fact]
-        public async Task ProjectionQueryWithoutFetch()
+        public async Task GetQueryWithProjectionWithoutFetch()
         {
             // Arrange
             var spec = new ProjectionQuerySpec();
@@ -93,7 +94,7 @@ namespace nuSpec.Tests
         }
 
         [Fact]
-        public async Task ProjectionQueryWithFetch()
+        public async Task GetQueryWithProjectionWithFetch()
         {
             // Arrange
             var spec = new ProjectionQueryWithFetchSpec();
@@ -106,33 +107,44 @@ namespace nuSpec.Tests
             NHibernateUtil.IsInitialized(result.Single().Emp.Department).Should().BeTrue();
         }
 
-        private class QuerySpec : Specification<Employee>
+        [Fact]
+        public async Task GetFuture()
         {
-            public QuerySpec() => this.Query = q => q.Where(x => x.LastName == "L1");
+            // Arrange
+            this.SessionFactory.Statistics.Clear();
+            var spec = new ProjectionQuerySpec();
+            var f1 = this.evaluator.GetFuture(this.sessionQuery, spec);
+            var f2 = this.evaluator.GetFuture(this.sessionQuery, spec);
+            var f3 = this.evaluator.GetFuture(this.sessionQuery, spec);
+
+            // Act
+            var result = (await f1.GetEnumerableAsync()).ToList();
+
+            // Assert
+            result.Should().ContainSingle(x => x.FullName == "F1 L1");
+            (await f2.GetEnumerableAsync()).Should().ContainSingle(x => x.FullName == "F1 L1");
+            (await f3.GetEnumerableAsync()).Should().ContainSingle(x => x.FullName == "F1 L1");
+            this.SessionFactory.Statistics.QueryExecutionCount.Should().Be(1);
         }
 
-        private class QueryWithFetchSpec : QuerySpec
+        [Fact]
+        public async Task GetFutureValue()
         {
-            public QueryWithFetchSpec() => this.AddFetch(q => q.Fetch(f => f.Department));
-        }
+            // Arrange
+            this.SessionFactory.Statistics.Clear();
+            var spec = new ProjectionQuerySpec();
+            var f1 = this.evaluator.GetFutureValue(this.sessionQuery, spec);
+            var f2 = this.evaluator.GetFutureValue(this.sessionQuery, spec);
+            var f3 = this.evaluator.GetFutureValue(this.sessionQuery, spec);
 
-        private class ProjectionQuerySpec : Specification<Employee, EmployeeProjection>
-        {
-            public ProjectionQuerySpec()
-            {
-                this.Query = q => q.Where(x => x.LastName == "L1");
-                this.Projection = q => q.Select(
-                                                z => new EmployeeProjection
-                                                     {
-                                                         FullName = z.FirstName + ' ' + z.LastName,
-                                                         Emp = z
-                                                     });
-            }
-        }
+            // Act
+            var result = (await f1.GetValueAsync());
 
-        private class ProjectionQueryWithFetchSpec : ProjectionQuerySpec
-        {
-            public ProjectionQueryWithFetchSpec() => this.AddFetch(q => q.Fetch(f => f.Department));
+            // Assert
+            result.FullName.Should().Be("F1 L1");
+            (await f2.GetValueAsync()).FullName.Should().Be("F1 L1");
+            (await f3.GetValueAsync()).FullName.Should().Be("F1 L1");
+            this.SessionFactory.Statistics.QueryExecutionCount.Should().Be(1);
         }
     }
 }

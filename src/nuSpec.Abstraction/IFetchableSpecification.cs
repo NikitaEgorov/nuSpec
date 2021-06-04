@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace nuSpec.Abstraction
 {
-    public interface IFetchebleSpecification<TDomainObject>
+    public interface IFetchableSpecification<TDomainObject>
     {
         IEnumerable<Func<IFetchableQueryable<TDomainObject>, IQueryable<TDomainObject>>> Fetches
         {

@@ -1,4 +1,4 @@
-﻿namespace nuSpec.Tests
+﻿namespace nuSpec.Tests.Models
 {
     public class Employee
     {

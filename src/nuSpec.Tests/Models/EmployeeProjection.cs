@@ -1,17 +1,17 @@
-﻿namespace nuSpec.Tests
+﻿namespace nuSpec.Tests.Models
 {
-    internal class EmployeeProjection
+    public class EmployeeProjection
     {
         public string FullName
         {
             get;
-            set;
+            init;
         }
 
         public Employee Emp
         {
             get;
-            set;
+            init;
         }
     }
 }
