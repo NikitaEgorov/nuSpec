@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 using nuSpec.Abstraction;
 
@@ -10,33 +11,43 @@ namespace nuSpec.NHibernate
             IQueryable<TDomainObject> query,
             Specification<TDomainObject, TProjection> specification)
         {
+            if (specification.Query == null)
+            {
+                throw new ArgumentNullException(nameof(specification.Query), "Specification Query should be initialized");
+            }
+
             var queryable = ApplyFetch(query, specification);
 
             return specification.Query(queryable);
         }
 
-        public IFutureValue<TProjection> GetFutureValue<TDomainObject, TProjection>(
+        public INuFutureValue<TProjection> GetFutureValue<TDomainObject, TProjection>(
             IQueryable<TDomainObject> query,
             Specification<TDomainObject, TProjection> specification)
         {
+            if (specification.Query == null)
+            {
+                throw new ArgumentNullException(nameof(specification.Query), "Specification Query should be initialized");
+            }
+
             var queryable = ApplyFetch(query, specification);
 
             return new FutureValue<TProjection>(specification.Query(queryable));
         }
 
-        public IFutureEnumerable<TProjection> GetFuture<TDomainObject, TProjection>(
+        public INuFutureEnumerable<TProjection> GetFuture<TDomainObject, TProjection>(
             IQueryable<TDomainObject> query,
             Specification<TDomainObject, TProjection> specification)
         {
+            if (specification.Query == null)
+            {
+                throw new ArgumentNullException(nameof(specification.Query), "Specification Query should be initialized");
+            }
+
             var queryable = ApplyFetch(query, specification);
 
             return new FutureEnumerable<TProjection>(specification.Query(queryable));
         }
-
-        public IQueryable<TDomainObject> GetQuery<TDomainObject>(
-            IQueryable<TDomainObject> query,
-            Specification<TDomainObject> specification) =>
-            this.GetQuery(query, (Specification<TDomainObject, TDomainObject>)specification);
 
         private static IQueryable<TDomainObject> ApplyFetch<TDomainObject>(
             IQueryable<TDomainObject> query,

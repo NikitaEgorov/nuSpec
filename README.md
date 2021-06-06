@@ -75,12 +75,58 @@ public class EmployeeByLastNameSpecification : Specification<Employee, EmployeeP
     }
 }
 
-public IEnumerable<T> Find()
+public class Repository
 {
-    var does = this.evaluator.GetFuture([a queryable source], new EmployeeByLastNameSpecification("Doe"));
-    var smiths = this.evaluator.GetFuture([a queryable source], new EmployeeByLastNameSpecification("Smith"));
-    return does.GetEnumerable().Union(smiths.GetEnumerable())
+    public IEnumerable<T> Find()
+    {
+        var does = this.evaluator.GetFuture([a queryable source], new EmployeeByLastNameSpecification("Doe"));
+        var smiths = this.evaluator.GetFuture([a queryable source], new EmployeeByLastNameSpecification("Smith"));
+        return does.GetEnumerable().Union(smiths.GetEnumerable())
+    }
 }
+```
+
+## Using with ASP.NET Core DI
+
+```csharp
+
+// Startup.cs
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddSingleton<ISpecificationEvaluator, NhSpecificationEvaluator>();
+}
+
+
+// Repository.cs
+public class Repository
+{
+    private readonly ISpecificationEvaluator evaluator;
+
+    private readonly ISession session;
+
+    public Repository(ISession session, ISpecificationEvaluator evaluator)
+    {
+        this.evaluator = evaluator;
+        this.session = session;
+    }
+
+    public async Task<IList<TProjection>> ListAsync<TDomainObject, TProjection>(
+        Specification<TDomainObject, TProjection> specification,
+        CancellationToken cancellationToken = default) =>
+        await this
+                .evaluator
+                .GetQuery(this.session.Query<TDomainObject>(), specification)
+                .ToListAsync(cancellationToken);
+    
+    public async Task<TProjection> SingleOrDefaultAsync<TDomainObject, TProjection>(
+        Specification<TDomainObject, TProjection> specification,
+        CancellationToken cancellationToken = default) =>
+        await this
+                .evaluator
+                .GetQuery(this.session.Query<TDomainObject>(), specification)
+                .SingleOrDefaultAsync(cancellationToken);
+}
+
 ```
 
 

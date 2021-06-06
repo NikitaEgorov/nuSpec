@@ -3,15 +3,16 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using NHibernate;
 using NHibernate.Linq;
 
 using nuSpec.Abstraction;
 
 namespace nuSpec.NHibernate
 {
-    public class FutureValue<T> : IFutureValue<T>
+    public class FutureValue<T> : INuFutureValue<T>
     {
-        private readonly global::NHibernate.IFutureValue<T> futureValue;
+        private readonly IFutureValue<T> futureValue;
 
         public FutureValue(IQueryable<T> query) => this.futureValue = query.ToFutureValue() ?? throw new ArgumentNullException(nameof(query));
 

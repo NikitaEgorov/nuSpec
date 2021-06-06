@@ -4,15 +4,16 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using NHibernate;
 using NHibernate.Linq;
 
 using nuSpec.Abstraction;
 
 namespace nuSpec.NHibernate
 {
-    public class FutureEnumerable<T> : IFutureEnumerable<T>
+    public class FutureEnumerable<T> : INuFutureEnumerable<T>
     {
-        private readonly global::NHibernate.IFutureEnumerable<T> futureEnumerable;
+        private readonly IFutureEnumerable<T> futureEnumerable;
 
         public FutureEnumerable(IQueryable<T> querable) =>
             this.futureEnumerable = querable.ToFuture() ?? throw new ArgumentNullException(nameof(this.futureEnumerable));
