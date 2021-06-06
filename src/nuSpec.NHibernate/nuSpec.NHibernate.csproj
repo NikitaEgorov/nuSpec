@@ -17,9 +17,9 @@
     <Summary>NHibernate plugin package to nuSpec containing NHibernate evaluator.</Summary>
     <RepositoryUrl>https://github.com/nikitaegorov/nuspec</RepositoryUrl>
     <PackageTags>spec;specification;repository;ddd;nhibernate</PackageTags>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <PackageReleaseNotes>
-      Rename intefactes IFutureEnumerable and IFutureValue to INuFutureEnumerable and INuFutureValue
+      Rename interfaces IFutureEnumerable and IFutureValue to INuFutureEnumerable and INuFutureValue
     </PackageReleaseNotes>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
