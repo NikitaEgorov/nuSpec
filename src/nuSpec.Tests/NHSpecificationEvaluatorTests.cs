@@ -138,12 +138,31 @@ namespace nuSpec.Tests
             var f3 = this.evaluator.GetFutureValue(this.sessionQuery, spec);
 
             // Act
-            var result = (await f1.GetValueAsync());
+            var result = await f1.GetValueAsync();
 
             // Assert
             result.FullName.Should().Be("F1 L1");
             (await f2.GetValueAsync()).FullName.Should().Be("F1 L1");
             (await f3.GetValueAsync()).FullName.Should().Be("F1 L1");
+            this.SessionFactory.Statistics.QueryExecutionCount.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task GetFutureValueWithSelector()
+        {
+            // Arrange
+            this.SessionFactory.Statistics.Clear();
+            var spec = new ProjectionQuerySpec();
+            var f1 = this.evaluator.GetFutureValue(this.sessionQuery, spec);
+            var countFuture = this.evaluator.GetFutureValue(this.sessionQuery, spec, x => x.Count());
+
+            // Act
+            var result = await f1.GetValueAsync();
+
+            // Assert
+            result.FullName.Should().Be("F1 L1");
+            countFuture.Value.Should().Be(1);
+
             this.SessionFactory.Statistics.QueryExecutionCount.Should().Be(1);
         }
     }

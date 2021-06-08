@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Expressions;
 
 using nuSpec.Abstraction;
 
@@ -33,6 +34,21 @@ namespace nuSpec.NHibernate
             var queryable = ApplyFetch(query, specification);
 
             return new FutureValue<TProjection>(specification.Query(queryable));
+        }
+
+        public INuFutureValue<TResult> GetFutureValue<TDomainObject, TProjection, TResult>(
+            IQueryable<TDomainObject> query,
+            Specification<TDomainObject, TProjection> specification,
+            Expression<Func<IQueryable<TProjection>, TResult>> selector)
+        {
+            if (specification.Query == null)
+            {
+                throw new ArgumentNullException(nameof(specification.Query), "Specification Query should be initialized");
+            }
+
+            var queryable = ApplyFetch(query, specification);
+
+            return new FutureValue<TProjection, TResult>(specification.Query(queryable), selector);
         }
 
         public INuFutureEnumerable<TProjection> GetFuture<TDomainObject, TProjection>(
