@@ -10,7 +10,7 @@ nuSpec is a framework that will help you to create specifications for queries th
 - [Future](https://nhibernate.info/doc/nhibernate-reference/performance.html#performance-future) - batch execution
 
 
-Almost all users of LINQ create specifications in their daily work, but most of them write those specifications scattered all over the code. The idea behind this project is to help the user to write, test and expose specifications as first-class objects. You will learn how to use nuSpec in this brief document.
+Almost all LINQ users in their daily work create specifications, but most of them write those specifications scattered all over the code. The idea behind this project is to help the user to write, test and expose specifications as first-class objects. You will learn how to use nuSpec in this brief document.
 
 ### Defining simple specifications
 
@@ -54,6 +54,53 @@ var spec = new EmployeeByLastNameSpecification("Doe");
 var result = employeeRepository.Find(spec);
 ```
 
+### Future
+
+```csharp
+public class ProjectionQuerySpec : Specification<Employee, EmployeeProjection>
+{
+    public ProjectionQuerySpec() =>
+        this.Query = q => q.Where(x => x.LastName == "L1")
+                            .Select(
+                                    z => new EmployeeProjection
+                                        {
+                                            FullName = z.FirstName + ' ' + z.LastName,
+                                            Emp = z
+                                        });
+}
+
+[Fact]
+public async Task GetFutureValueWithSelector()
+{
+    // Arrange
+    var spec = new ProjectionQuerySpec();
+    var f1 = this.evaluator.GetFutureValue(this.sessionQuery, spec);
+    var countFuture = this.evaluator.GetFutureValue(this.sessionQuery, spec, x => x.Count());
+
+    // Act
+    var result = await f1.GetValueAsync();
+
+    // Assert
+    result.FullName.Should().Be("F1 L1");
+    countFuture.Value.Should().Be(1);
+}
+```
+
+### MS SQL Server example (Split max params)
+
+```csharp
+var ids = Enumerable.Range(1, 5000);
+var chunks = ids.Split(1000);
+var employees = new List<EmployeeProjection>();
+
+foreach(var batch in chunks)
+{
+    var spec = new EmployeeByIDsSpecification(batch);
+    employees.AddRange(employeeRepository.Find(spec)); // Do not run in parallel an ISession is a non-threadsafe
+}
+```
+
+
 ### Hardcore example
 
 ```csharp
@@ -70,8 +117,8 @@ public class EmployeeByLastNameSpecification : Specification<Employee, EmployeeP
     public QuerySpec(string lastName)
     {
         this.Query = q => q.Where(x => x.LastName == lastName)
-                        .Select(e => new EmployeeProjection{ FullName = e.FullNam, Employee = e }
-        this.AddFetch(q => q.Fetch(e => e.Department))
+                        .Select(e => new EmployeeProjection{ FullName = e.FullNam, Employee = e });
+        this.AddFetch(q => q.Fetch(e => e.Department));
     }
 }
 
